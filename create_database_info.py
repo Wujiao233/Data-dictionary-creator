@@ -1,6 +1,7 @@
 import pymysql as mysql
 import sys
 import argparse
+import tqdm
 
 parser = argparse.ArgumentParser(description="由Mysql数据库生成数据字典")
 
@@ -12,11 +13,12 @@ parser.add_argument('-t', '--table', help='Tablename when only output one table'
 parser.add_argument('-p', '--path', help='Output path', default='./')
 parser.add_argument('-c', '--charset', help='Charset you want to use', default='utf8')
 
-print(parser.parse_args())
+# print(parser.parse_args())
 
 argv = parser.parse_args()
 
-conn = mysql.connect(host=argv.host, user=argv.user, password=argv.password, database='information_schema',charset=argv.charset)
+conn = mysql.connect(host=argv.host, user=argv.user, password=argv.password, database='information_schema',
+                     charset=argv.charset)
 cursor = conn.cursor()
 
 
@@ -39,16 +41,16 @@ if argv.table is None:
 else:
     tables = [[argv.table]]
 
-for table in tables:
+for table in tqdm.tqdm(tables):
     table = table[0]
-    f = open(argv.path + '/' + table + '.md', 'w+',encoding='utf-8')
-    print(table)
+    f = open(argv.path + '/' + table + '.md', 'w+', encoding='utf-8')
+    # print(table)
     cursor.execute(
         "select COLUMN_NAME,COLUMN_TYPE,COLUMN_DEFAULT,IS_NULLABLE,COLUMN_COMMENT " +
         "from information_schema.COLUMNS where table_schema='{database}' and table_name='{table}'".format(
             database=argv.database, table=table))
     tmp_table = cursor.fetchall()
-    print(tmp_table)
+    # print(tmp_table)
     p = markdown_table_header.format(table_name=table)
     for col in tmp_table:
         p += markdown_table_row % col

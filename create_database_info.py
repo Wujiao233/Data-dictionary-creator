@@ -54,8 +54,11 @@ for table in tqdm.tqdm(tables):
     p = markdown_table_header.format(table_name=table)
     for col in tmp_table:
         tcol = list(col)
-        tcol[4] = tcol[4].replace('\n','')
+        tcol[4] = tcol[4].replace('\r\n','<br>')
+        tcol[4] = tcol[4].replace('\n','<br>').replace('\r','<br>')
         tcol = tuple(tcol)
+        print(tcol)
+        print(len(tcol))
         p += markdown_table_row % tcol
     # print p
     f.writelines(p)
